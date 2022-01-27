@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
+	"strconv"
 	"text/template"
 
 	"github.com/lucasfukuhara/models"
@@ -27,4 +29,26 @@ func NewProduct(w http.ResponseWriter, r *http.Request) {
 	The Index is the anotation {{define}} we added on index.html
 	*/
 	templateList.ExecuteTemplate(w, "NewProducts", nil)
+}
+
+func Insert(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		name := r.FormValue("name")
+		description := r.FormValue("description")
+		price := r.FormValue("price")
+		quantity := r.FormValue("quantity")
+
+		priceConverted, err := strconv.ParseFloat(price, 64)
+		if err != nil {
+			log.Println("Error during price convertion: ", err)
+		}
+
+		quantityConverted, err := strconv.Atoi(quantity)
+		if err != nil {
+			log.Println("Error during quantity convertion: ", err)
+		}
+
+		models.AddNewProduct(name, description, priceConverted, quantityConverted)
+	}
+	http.Redirect(w, r, "/", 301)
 }
