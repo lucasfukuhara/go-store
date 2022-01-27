@@ -19,3 +19,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	*/
 	templateList.ExecuteTemplate(w, "Index", products)
 }
+
+func NewProduct(w http.ResponseWriter, r *http.Request) {
+
+	/* will send the template index as response, the last parameter is to send
+	some information to the template.
+	The Index is the anotation {{define}} we added on index.html
+	*/
+	templateList.ExecuteTemplate(w, "NewProducts", nil)
+}
