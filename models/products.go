@@ -1,6 +1,8 @@
 package models
 
-import "github.com/lucasfukuhara/db"
+import (
+	"github.com/lucasfukuhara/db"
+)
 
 type Product struct {
 	Id          int
@@ -62,6 +64,49 @@ func DeleteProduct(id string) {
 		panic(err.Error())
 	}
 	deleteQuery.Exec(id)
+
+	defer db.Close()
+}
+
+func EditProduct(id string) Product {
+	db := db.DbConnect()
+
+	queryResult, err := db.Query("select * from products where id = $1", id)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	productToUpdate := Product{}
+
+	for queryResult.Next() {
+		var id, qtt int
+		var name, desc string
+		var price float64
+
+		err = queryResult.Scan(&id, &name, &desc, &price, &qtt)
+		if err != nil {
+			panic(err.Error())
+		}
+		productToUpdate.Id = id
+		productToUpdate.Description = desc
+		productToUpdate.Name = name
+		productToUpdate.Price = price
+		productToUpdate.Quantity = qtt
+	}
+
+	defer db.Close()
+
+	return productToUpdate
+}
+
+func UpdateProduct(id int, name, desc string, price float64, quantity int) {
+	db := db.DbConnect()
+
+	updateProductQuery, err := db.Prepare("update products set name= $1, description =$2, price=$3, quantity=$4 where id=$5")
+	if err != nil {
+		panic(err.Error())
+	}
+	updateProductQuery.Exec(name, desc, price, quantity, id)
 
 	defer db.Close()
 }
