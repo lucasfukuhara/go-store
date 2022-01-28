@@ -3,7 +3,7 @@ package models
 import "github.com/lucasfukuhara/db"
 
 type Product struct {
-	ID          int
+	Id          int
 	Name        string
 	Description string
 	Price       float64
@@ -29,7 +29,7 @@ func SearchAllProducts() []Product {
 		if err != nil {
 			panic(err.Error())
 		}
-		p.ID = id
+		p.Id = id
 		p.Name = name
 		p.Description = desc
 		p.Price = price
@@ -50,6 +50,18 @@ func AddNewProduct(name, desc string, price float64, quantity int) {
 		panic(err.Error())
 	}
 	insertNewProduct.Exec(name, desc, price, quantity)
+
+	defer db.Close()
+}
+
+func DeleteProduct(id string) {
+	db := db.DbConnect()
+
+	deleteQuery, err := db.Prepare("delete from products where id = $1")
+	if err != nil {
+		panic(err.Error())
+	}
+	deleteQuery.Exec(id)
 
 	defer db.Close()
 }
